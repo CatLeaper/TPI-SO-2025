@@ -7,8 +7,8 @@ from tabulate import tabulate
 # Requerimiento 2025: 50, 150, 250 [cite: 55, 56]
 memoria = [] 
 memoria.append({"idPart": 0, "dirInicio": 0, "tam": 50, "idProc": None, "fragInt": None, "libre": True }) 
-memoria.append({"idPart": 1, "dirInicio": 51, "tam": 150, "idProc": None, "fragInt": None, "libre": True})
-memoria.append({"idPart": 2, "dirInicio": 151, "tam": 250, "idProc": None, "fragInt": None, "libre": True})
+memoria.append({"idPart": 1, "dirInicio": 50, "tam": 150, "idProc": None, "fragInt": None, "libre": True})
+memoria.append({"idPart": 2, "dirInicio": 200, "tam": 250, "idProc": None, "fragInt": None, "libre": True})
 
 
 disco = []
@@ -424,4 +424,5 @@ def simulador() -> None:
     return
 
 os.system("cls")
+
 menuPrincipal()
