@@ -406,7 +406,7 @@ def simulador() -> None:
         # 7. Mostrar tablas si hubo un cambio
         if cambio:
             mostrarTablas()
-            cambio = False
+            cambio = True
         
         # 8. Avanzar el reloj 1 unidad
         # (Esto actualizará 'tiempoRestante', 'tiempoEspera' y manejará procesos terminados)
