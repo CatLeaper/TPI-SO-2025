@@ -1,4 +1,4 @@
-from app import leer_archivo_procesos # Este archivo no se modifica
+from LectorCSV import leer_archivo_procesos # Este archivo no se modifica
 import os
 from tabulate import tabulate
 
