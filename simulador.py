@@ -1,8 +1,8 @@
-from LectorCSV import leer_archivo_procesos  # Este archivo no se modifica
+from LectorCSV import leer_archivo_procesos  
 import os
 from tabulate import tabulate
 
-# Particiones de memoria fija (Requerimiento 2025: 50, 150, 250)
+# Particiones de memoria fija (tamaños 50, 150, 250)
 memoria = [] 
 memoria.append({"idPart": 0, "dirInicio": 0, "tam": 50,  "idProc": None, "fragInt": None, "libre": True}) 
 memoria.append({"idPart": 1, "dirInicio": 51, "tam": 150, "idProc": None, "fragInt": None, "libre": True})
@@ -15,7 +15,7 @@ cambio = False
 procesos = []  # Lista global de procesos
 
 
-# ------------------ MENU / CARGA DE ARCHIVO ------------------ #
+# Menu/Carga del archivo #
 
 def menuPrincipal(): 
     print("Menu:\n")
@@ -35,7 +35,7 @@ def menuPrincipal():
 
 def vistaPrevia():
     global procesos 
-    archivo = input("Ingrese el nombre del archivo a leer.\n\nEl archivo debe ser de tipo CSV y estar en la misma carpeta que el programa.\n\n")
+    archivo = input("Ingrese el nombre del archivo a leer.\n\nEl mismo debe de ser del tipo CSV y estar en la misma carpeta que el programa.\n\n")
     if ".csv" not in archivo:
         archivo += ".csv"
 
@@ -52,7 +52,7 @@ def vistaPrevia():
         vistaPrevia()
         return
     else:
-        # ---------- 1) MANEJO DE MÁS DE 10 PROCESOS ----------
+        #Manejo por si hay + de 10 procesos
         total_leidos = len(procesos)
         ignorados = []
         if total_leidos > 10:
@@ -67,9 +67,8 @@ def vistaPrevia():
             print()
             input("Pulse una tecla para continuar...\n")
             os.system("cls")
-        # ----------------------------------------------------
 
-        # ---------- 2) OPCIÓN A: RECHAZAR SI HAY PROCESOS DEMASIADO GRANDES ----------
+        #  Rechaza si existen procesos demasiados grandes
         max_part = max(part["tam"] for part in memoria)  # tamaño de la partición más grande
         procesos_invalidos = [p for p in procesos if p["tam"] > max_part]
 
@@ -80,21 +79,19 @@ def vistaPrevia():
             print("Procesos no admitidos:")
             for p in procesos_invalidos:
                 print(f"  - Proceso {p['id']} (TAM={p['tam']})")
-            print("\nCorrija el archivo CSV (reduzca el tamaño o elimine esos procesos) y vuelva a intentar.\n")
+            print("\nCorrija el archivo CSV y vuelva a intentar.\n")
             input("Pulse una tecla para volver al menú...\n")
             os.system("cls")
             menuPrincipal()
             return
-        # ------------------------------------------------------------------------------
 
-        # ---------- 3) INICIALIZAR CAMPOS INTERNOS DEL SIMULADOR ----------
+        # Inicializar campos internos
         for p in procesos:
             p["estado"] = None
             p["tiempoRestante"] = p["tiempoIrrupcion"]
             p["tiempoEspera"] = 0
             p["particion"] = None
             p["tiempoFinalizacion"] = None
-        # ------------------------------------------------------------------
 
         # Vista previa
         matInicio = [["IDP","TAM","TA","TI"]]
@@ -127,7 +124,7 @@ def vistaPrevia():
     return
 
 
-# ------------------ MEMORIA (BEST-FIT) ------------------ #
+# Memoria BEST-FIT #
 
 def hayEspacioEnMP(proceso: list) -> bool:
     global memoria
@@ -175,7 +172,7 @@ def cargarColaEjec(proceso: list) -> None:
         colaEjec.append(proceso["id"]) 
 
 
-# ------------------ COLAS / ESTADOS ------------------ #
+# Colas/Estados #
 
 def agregarProcesosInicio():
     global procesos
@@ -254,7 +251,7 @@ def cargarNuevosMemoria() -> None:
                 cargarDisco(proceso)
 
 
-# ------------------ AVANCE DEL TIEMPO ------------------ #
+#  Tiempo  #
 
 def avanzarTiempo() -> None:
     global memoria, procesos, tiempo, colaEjec, cambio
@@ -281,7 +278,7 @@ def avanzarTiempo() -> None:
             cambio = True
 
 
-# ------------------ PLANIFICADOR SRTF ------------------ #
+# SRTF #
 
 def planificadorSRTF() -> None:
     global procesos, colaEjec, cambio
@@ -317,7 +314,7 @@ def planificadorSRTF() -> None:
         cambio = True
 
 
-# ------------------ MOSTRAR TABLAS / ESTADÍSTICAS ------------------ #
+#  Mostrar Tablas  #
 
 def mostrarTablas() -> None:
     global memoria, procesos, tiempo
@@ -402,19 +399,11 @@ def mostrarEstadisticas():
         numalign='center'))
 
 
-# ------------------ BUCLE PRINCIPAL DEL SIMULADOR ------------------ #
+#  Bucle principal (SIMULADOR)  #
 
 def simulador() -> None:
     global memoria, procesos, disco, colaEjec, tiempo, cambio
     
-    # Por si querés que siempre arranque desde 0:
-    # tiempo = 0
-    # disco.clear()
-    # colaEjec.clear()
-    # for part in memoria: 
-    #     part["idProc"] = None
-    #     part["fragInt"] = None
-    #     part["libre"] = True
 
     agregarProcesosInicio()
 
@@ -451,7 +440,7 @@ def simulador() -> None:
     return
 
 
-# ------------------ INICIO DEL PROGRAMA ------------------ #
+#  Inicio del programa  #
 
 os.system("cls")
 menuPrincipal()
