@@ -19,7 +19,7 @@ def leer_archivo_procesos(filename):
     Carga los procesos desde el archivo CSV.
     Devuelve una lista de diccionarios.
     """
-    
+    filename = filename.strip().replace('"', '').replace("'", "")
     # Verificamos que el archivo exista
     if not os.path.exists(filename):
         print(f"Error: El archivo '{filename}' no existe.")
