@@ -46,7 +46,7 @@ def leer_archivo_procesos(filename):
                 if len(row) == 4:
                     # Creamos el diccionario
                     proc = {}
-                    proc["id"] = int(row[0])
+                    proc["id"] = row[0].strip()
                     proc["tam"] = int(row[1])
                     proc["tiempoArribo"] = int(row[2])
                     proc["tiempoIrrupcion"] = int(row[3])
