@@ -239,16 +239,26 @@ def cargarLSMemoria() -> None:
 
 
 def cargarNuevosMemoria() -> None:
-    global procesos, memoria, tiempo
-    nuevos_procesos = [p for p in procesos if p["tiempoArribo"] == tiempo and p["estado"] is None]
-    nuevos_procesos.sort(key=lambda x: x['tiempoRestante'])
+    global procesos, memoria, tiempo, colaEjec
+    
+    nuevos_procesos = [p for p in procesos if p["tiempoArribo"] <= tiempo and p["estado"] is None]
+    nuevos_procesos.sort(key=lambda x: x['tiempoRestante']) 
 
     for proceso in nuevos_procesos:
+
+        if len(colaEjec) >= 5:
+            break 
+
         if proceso["particion"] is None:
+            exito = False
             if hayEspacioEnMP(proceso):
-                cargarMP(proceso)
+                exito = cargarMP(proceso) 
             else:
-                cargarDisco(proceso)
+                cargarDisco(proceso) 
+                exito = True 
+            
+            if exito and proceso["id"] not in colaEjec:
+                colaEjec.append(proceso["id"])
 
 
 #  Tiempo  #
