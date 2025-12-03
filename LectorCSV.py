@@ -73,9 +73,7 @@ def leer_archivo_procesos(filename):
         return None
 
 def mostrar_vista_previa(lista_procesos):
-    
     #Mostramos los procesos cargados en una tabla
-    
     
     # Si tabulate no llegara a poder importarse, entonces mostramos los datos de forma simple.
     if not tabulate:

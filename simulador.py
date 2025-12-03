@@ -34,6 +34,7 @@ def menuPrincipal():
 
 
 def vistaPrevia():
+    # Carga del archivo, valida el limite de procesos y tamaños 
     global procesos 
     archivo = input("Ingrese el nombre del archivo a leer.\n\nEl mismo debe de ser del tipo CSV y estar en la misma carpeta que el programa.\n\n")
     if ".csv" not in archivo:
@@ -127,6 +128,7 @@ def vistaPrevia():
 # Memoria BEST-FIT #
 
 def hayEspacioEnMP(proceso: list) -> bool:
+    # Verifica si hay espacio en memoria para el proceso
     global memoria
     for particion in memoria:
         if particion["libre"] and particion["tam"] >= proceso["tam"]:
@@ -135,6 +137,7 @@ def hayEspacioEnMP(proceso: list) -> bool:
 
 
 def cargarMP(proceso: list) -> bool:
+    # Carga el proceso en memoria usando el algoritmo Best-Fit
     global memoria, cambio
     partMenorFrag = -1
     menorFrag = 999
@@ -160,6 +163,7 @@ def cargarMP(proceso: list) -> bool:
 
 
 def cargarDisco(proceso: list) -> None:
+    # Carga el proceso en disco (Listo/Suspendido)
     global disco
     proceso["estado"] = "Listo/Suspendido"
     proceso["particion"] = None
@@ -168,6 +172,7 @@ def cargarDisco(proceso: list) -> None:
 
 
 def cargarColaEjec(proceso: list) -> None:
+    # Agrega el proceso a la lista de candidatos
     if proceso["id"] not in colaEjec:
         colaEjec.append(proceso["id"]) 
 
@@ -175,6 +180,7 @@ def cargarColaEjec(proceso: list) -> None:
 # Colas/Estados #
 
 def agregarProcesosInicio():
+    # Carga inicial de procesos que llegan en el tiempo = 0
     global procesos
     for proceso in procesos:
         if proceso['tiempoArribo'] == 0: 
@@ -188,6 +194,7 @@ def agregarProcesosInicio():
 
 
 def agregarListosEjec() -> None:
+    # Mueve procesos en estado "Listo" a la cola de planificacion si hay lugar
     for proceso in procesos:
         if proceso["estado"] == "Listo" and proceso["id"] not in colaEjec: 
             if len(colaEjec) < 5:
@@ -197,6 +204,7 @@ def agregarListosEjec() -> None:
 
 
 def agregarLSEjec() -> None:
+    # Mueve procesos en estado "Listo/Suspendido" a la cola de planificacion si hay lugar
     global disco
     temp_list = [p for p in procesos if p["id"] in disco]
     temp_list.sort(key=lambda x: x['tiempoRestante'])
@@ -208,6 +216,7 @@ def agregarLSEjec() -> None:
 
 
 def agregarNuevosEjec() -> None:
+    # Agrega nuevos procesos que llegan en el tiempo actual si hay lugar
     global tiempo
     for proceso in procesos:
         if proceso["tiempoArribo"] == tiempo and proceso["id"] not in colaEjec:
@@ -218,6 +227,7 @@ def agregarNuevosEjec() -> None:
 
 
 def cargarEjecMemoria() -> None:
+    # Carga procesos en estado "Listo/Suspendido" desde disco a memoria si hay lugar
     global colaEjec, procesos, memoria, disco
     for pid in colaEjec: 
         for proceso in procesos:
@@ -228,6 +238,7 @@ def cargarEjecMemoria() -> None:
                     
 
 def cargarLSMemoria() -> None:
+    # Intenta traer procesos suspendidos a memoria si se liberó espacio.
     global procesos, memoria, disco
     temp_list = [p for p in procesos if p["id"] in disco]
     temp_list.sort(key=lambda x: x['tiempoRestante'])
@@ -239,6 +250,7 @@ def cargarLSMemoria() -> None:
 
 
 def cargarNuevosMemoria() -> None:
+    # Carga nuevos procesos que llegan en el tiempo actual a memoria si hay lugar
     global procesos, memoria, tiempo, colaEjec
     
     nuevos_procesos = [p for p in procesos if p["tiempoArribo"] <= tiempo and p["estado"] is None]
@@ -264,6 +276,7 @@ def cargarNuevosMemoria() -> None:
 #  Tiempo  #
 
 def avanzarTiempo() -> None:
+    # Incrementa el tiempo y actualiza los contadores de los procesos
     global memoria, procesos, tiempo, colaEjec, cambio
     tiempo += 1
 
@@ -291,30 +304,36 @@ def avanzarTiempo() -> None:
 # SRTF #
 
 def planificadorSRTF() -> None:
+    # Selecciona los procesos en "listo", el que tenga menor tiempo restante
     global procesos, colaEjec, cambio
 
     proceso_actual = None
     candidatos = []
 
+    # Identificar proceso en ejecucion
     for p in procesos:
         if p["estado"] == "Ejecucion":
             proceso_actual = p
             break
-    
+
+    # Buscar candidatos que estén en RAM ("Listo") y dentro de la cola de multiprogramación
     for id_proc in colaEjec:
         for p in procesos:
             if p["id"] == id_proc and p["estado"] == "Listo":
                 candidatos.append(p)
                 break
     
+    # El proceso actual también es candidato para seguir en ejecución
     if proceso_actual:
         candidatos.append(proceso_actual)
 
     if not candidatos:
         return
 
+    # Seleccionar el proceso con menor tiempo restante
     proceso_a_ejecutar = min(candidatos, key=lambda x: x['tiempoRestante'])
 
+    # Cambiar estados si es necesario (Expropiación)
     if proceso_actual and proceso_actual["id"] != proceso_a_ejecutar["id"]:
         proceso_actual["estado"] = "Listo"
         cambio = True
@@ -327,6 +346,7 @@ def planificadorSRTF() -> None:
 #  Mostrar Tablas  #
 
 def mostrarTablas() -> None:
+    # Muestra el estado actual de la memoria y las colas de procesos
     global memoria, procesos, tiempo
     matMemoria=[['Particion','Tamaño','Proceso','FI'],
                 [memoria[0]["idPart"], memoria[0]["tam"], memoria[0]["idProc"], memoria[0]["fragInt"]],
@@ -422,14 +442,17 @@ def simulador() -> None:
         if terminados == len(procesos):
             break
 
+        # Gestión de memoria 
         cargarNuevosMemoria()
         cargarLSMemoria()
         cargarEjecMemoria()
 
+        # Gestión de cola de multiprogramación
         agregarListosEjec()   
         agregarLSEjec()       
         agregarNuevosEjec()   
 
+        # Planificacion de CPU
         planificadorSRTF()
         
         if cambio:
